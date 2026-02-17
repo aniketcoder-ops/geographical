@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Locations</title>
+
+  <style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(120deg, #1e3c72, #2a5298);
+        color: white;
+    }
+
+    /* NAVBAR */
+    .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(0,0,0,0.25);
+        backdrop-filter: blur(12px);
+        z-index: 1000;
+    }
+
+    .navbar-inner {
+        max-width: 1200px;
+        margin: auto;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+
+    .navbar ul {
+        list-style: none;
+        display: flex;
+        gap: 25px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar ul li a {
+        color: white;
+        text-decoration: none;
+        opacity: 0.85;
+        transition: 0.3s;
+    }
+
+    .navbar ul li a:hover {
+        opacity: 1;
+        color: #00e0ff;
+    }
+
+    /* PAGE */
+    .page {
+        padding-top: 120px;
+        max-width: 1200px;
+        margin: auto;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    h2 {
+        margin-bottom: 25px;
+    }
+
+    /* TABLE */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(14px);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 14px;
+        text-align: left;
+    }
+
+    th {
+        background: rgba(0,0,0,0.25);
+        font-weight: 600;
+    }
+
+    tr:not(:last-child) {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* STATUS BADGE */
+    .status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .active {
+        background: #00ff9d;
+        color: black;
+    }
+
+    .inactive {
+        background: #ff6b6b;
+        color: black;
+    }
+
+    /* ACTION BUTTONS */
+    .btn {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        margin-right: 6px;
+        transition: 0.2s;
+        display: inline-block;
+    }
+
+    .edit {
+        background: #ffd166;
+        color: black;
+    }
+
+    .delete {
+        background: #ef476f;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="logo">🌍 GeoService</div>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/geographical/form">Add Location</a></li>
+      <li><a href="/swagger-ui/index.html" target="_blank">API Docs</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<div class="page">
+  <h2>📍 Manage Geographical Data</h2>
+
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <!-- SAMPLE ROW (backend will replace this) -->
+    <tr>
+      <td>1</td>
+      <td>John</td>
+      <td>28.61</td>
+      <td>77.23</td>
+      <td>
+        <span class="status active">ACTIVE</span>
+      </td>
+      <td>
+        <a class="btn edit">Edit</a>
+        <a class="btn delete">Delete</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
