@@ -8,7 +8,7 @@ A Spring Boot backend application that provides REST APIs for managing geographi
 - Spring Boot
 - Spring Data JPA
 - MySQL
-- Maven
+- Gradel
 - REST APIs
 - Global Exception Handling
 - Caching using @Cacheable
