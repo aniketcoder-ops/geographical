@@ -7,9 +7,10 @@ require([
 ], function (Map, MapView, Locate, Fullscreen, Graphic) {
 
     let markerCount = 0;
+    let mapView = null;
 
     const map = new Map({
-        basemap: "streets-navigation-vector"
+        basemap: "dark-gray-vector"
     });
 
     const view = new MapView({
@@ -19,37 +20,43 @@ require([
         zoom: 3
     });
 
+    mapView = view;
+
     // Locate widget
     const locate = new Locate({ view: view });
     view.ui.add(locate, "top-left");
 
     // Fullscreen widget
     const fullscreen = new Fullscreen({ view: view });
-    view.ui.add(fullscreen, "top-right");
+    view.ui.add(fullscreen, "top-left");
 
     // Update zoom display
     view.watch("zoom", function (newZoom) {
-        document.getElementById("currentZoom").textContent = Math.round(newZoom);
+        const elem = document.getElementById("currentZoom");
+        if (elem) {
+            elem.textContent = Math.round(newZoom);
+        }
     });
 
     // Update center coordinates
     view.watch("center", function (center) {
-        document.getElementById("currentCoords").textContent =
-            center.latitude.toFixed(2) + ", " + center.longitude.toFixed(2);
+        const elem = document.getElementById("currentCoords");
+        if (elem) {
+            elem.textContent = center.latitude.toFixed(2) + ", " + center.longitude.toFixed(2);
+        }
     });
 
     // Click to add marker
     view.on("click", function (event) {
-
         const pointGraphic = new Graphic({
             geometry: event.mapPoint,
             symbol: {
                 type: "simple-marker",
-                color: "#3b82f6",
-                size: "12px",
+                color: "#8b5cf6",
+                size: "14px",
                 outline: {
                     color: "#ffffff",
-                    width: 1
+                    width: 2
                 }
             },
             popupTemplate: {
@@ -61,9 +68,12 @@ require([
         });
 
         view.graphics.add(pointGraphic);
-
         markerCount++;
-        document.getElementById("markerCount").textContent = markerCount;
+
+        const markerElem = document.getElementById("markerCount");
+        if (markerElem) {
+            markerElem.textContent = markerCount;
+        }
 
         view.popup.open({
             features: [pointGraphic],
@@ -71,11 +81,36 @@ require([
         });
     });
 
-    // Expose focus function globally
+    // Expose functions globally
     window.focusOnMap = function () {
-        document.getElementById("explore").scrollIntoView({
-            behavior: "smooth"
-        });
+        const elem = document.getElementById("explore");
+        if (elem) {
+            elem.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
+    window.resetMapView = function () {
+        if (mapView) {
+            mapView.goTo({
+                center: [0, 20],
+                zoom: 3
+            });
+        }
+    };
+
+    window.zoomIn = function () {
+        if (mapView) {
+            mapView.goTo({
+                zoom: mapView.zoom + 1
+            });
+        }
+    };
+
+    window.zoomOut = function () {
+        if (mapView) {
+            mapView.goTo({
+                zoom: mapView.zoom - 1
+            });
+        }
+    };
 });

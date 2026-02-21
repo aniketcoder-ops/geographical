@@ -139,9 +139,7 @@ public class GeographicalServiceImpl implements GeographicalService {
         return new ResponseModel(404, "Record not found or already inactive", null);
     }
 
-    // =========================
-    // TOTAL COUNT (Cached)
-    // =========================
+
     @Override
     @Cacheable(value = "geoCount")
     public long getTotalGeographicalCount() {
