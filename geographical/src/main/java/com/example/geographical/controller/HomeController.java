@@ -1,6 +1,6 @@
 package com.example.geographical.controller;
 
-import com.example.geographical.service.GeographicalService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,21 +8,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    private final GeographicalService geographicalService;
+    @GetMapping({"/", "/home"})
+    public String home(Model model, Authentication authentication) {
 
-    public HomeController(GeographicalService geographicalService) {
-        this.geographicalService = geographicalService;
-    }
+        boolean loggedIn = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication.getPrincipal().equals("anonymousUser"));
 
-    @GetMapping("/")
-    public String home(Model model) {
-        long totalCount = geographicalService.getTotalGeographicalCount();
-        model.addAttribute("totalCount", totalCount);
+        boolean isAdmin = false;
+
+        if (loggedIn) {
+            isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        }
+
+        model.addAttribute("loggedIn", loggedIn);
+        model.addAttribute("isAdmin", isAdmin);
+
         return "home";
     }
 
     @GetMapping("/login")
     public String loginPage() {
-        return "login"; // this should match login.html in templates
+        return "login";
     }
 }

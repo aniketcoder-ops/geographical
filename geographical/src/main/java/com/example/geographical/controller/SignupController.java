@@ -23,8 +23,19 @@ public class SignupController {
 
     @PostMapping("/signup")
     public String register(@ModelAttribute User user) {
+
+        // Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Assign role based on email
+        if ("admin@gmail.com".equalsIgnoreCase(user.getEmail())) {
+            user.setRole("ROLE_ADMIN");
+        } else {
+            user.setRole("ROLE_USER");
+        }
+
         userRepository.save(user);
-        return "redirect:/login";
+
+        return "redirect:/login?signup=success";
     }
 }

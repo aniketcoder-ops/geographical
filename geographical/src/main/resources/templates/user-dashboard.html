@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - GeoExplorer</title>
+
+  <!-- Dashboard CSS -->
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <i class="fas fa-globe-americas"></i>
+      <h2>GeoExplorer</h2>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/user/dashboard" class="active" data-testid="user-dashboard-link">
+          <i class="fas fa-chart-line"></i>
+          <span>My Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="/user/adddata" data-testid="add-data-link">
+          <i class="fas fa-plus-circle"></i>
+          <span>Add New Data</span>
+        </a>
+      </li>
+      <li>
+        <a href="/home" data-testid="home-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="/logout" class="logout-btn" data-testid="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1 data-testid="dashboard-title">My Dashboard</h1>
+      <p>View and manage your geographical data</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div class="stat-content">
+          <h3 th:text="${#lists.size(data)}" data-testid="total-records">0</h3>
+          <p>My Records</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon success">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3 th:text="${#lists.size(data.?[status == 1])}" data-testid="active-records">0</h3>
+          <p>Active Records</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon warning">
+          <i class="fas fa-globe"></i>
+        </div>
+        <div class="stat-content">
+          <h3>24/7</h3>
+          <p>Data Access</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="data-section">
+      <div class="section-header">
+        <h2>Quick Actions</h2>
+      </div>
+      <a href="/user/adddata" class="btn-primary" data-testid="add-new-data-btn">
+        <i class="fas fa-plus-circle"></i>
+        Add New Geographical Data
+      </a>
+    </div>
+
+    <!-- User's Geographical Data Table -->
+    <div class="data-section">
+      <div class="section-header">
+        <h2 data-testid="my-data-section-title">My Geographical Data</h2>
+      </div>
+
+      <div class="table-container" th:if="${!#lists.isEmpty(data)}">
+        <table data-testid="user-data-table">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Description</th>
+            <th>Remarks</th>
+            <th>Status</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="d : ${data}" th:data-testid="'data-row-' + ${d.gdId}">
+            <td th:text="${d.gdId}">1</td>
+            <td th:text="${d.latitude}">40.7128</td>
+            <td th:text="${d.longitude}">-74.0060</td>
+            <td th:text="${d.description}">Location description</td>
+            <td th:text="${d.remarks}">Some remarks</td>
+            <td>
+              <span class="badge user" th:text="${d.status == 1 ? 'Active' : 'Inactive'}">Active</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" th:if="${#lists.isEmpty(data)}">
+        <i class="fas fa-map-marked-alt"></i>
+        <h3>No Data Yet</h3>
+        <p>You haven't added any geographical data yet.</p>
+        <br>
+        <a href="/user/adddata" class="btn-primary" data-testid="add-first-data-btn">
+          <i class="fas fa-plus-circle"></i>
+          Add Your First Data
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>

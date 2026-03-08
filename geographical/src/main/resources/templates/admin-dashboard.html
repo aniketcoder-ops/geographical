@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - GeoExplorer</title>
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-globe-americas"></i>
+            <h2>GeoExplorer</h2>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/admin/dashboard" class="active" data-testid="admin-dashboard-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/home" data-testid="home-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn" data-testid="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1 data-testid="dashboard-title">Admin Dashboard</h1>
+            <p>Manage users and geographical data</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${#lists.size(users)}" data-testid="total-users">0</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${#lists.size(data)}" data-testid="total-data">0</h3>
+                    <p>Geographical Records</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${#lists.size(users.?[role == 'ROLE_ADMIN'])}" data-testid="admin-count">0</h3>
+                    <p>Admin Users</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2 data-testid="users-section-title">All Users</h2>
+            </div>
+
+            <div class="table-container" th:if="${!#lists.isEmpty(users)}">
+                <table data-testid="users-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Created At</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}" th:data-testid="'user-row-' + ${user.id}">
+                        <td th:text="${user.id}">1</td>
+                        <td th:text="${user.username}">john_doe</td>
+                        <td th:text="${user.email}">john@example.com</td>
+                        <td>
+                                <span class="badge"
+                                      th:classappend="${user.role == 'ROLE_ADMIN'} ? 'admin' : 'user'"
+                                      th:text="${user.role}">ROLE_USER</span>
+                        </td>
+                        <td th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">01 Jan 2026</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(users)}">
+                <i class="fas fa-users"></i>
+                <h3>No Users Found</h3>
+                <p>There are no registered users yet.</p>
+            </div>
+        </div>
+
+        <!-- Geographical Data Table -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2 data-testid="geo-data-section-title">All Geographical Data</h2>
+            </div>
+
+            <div class="table-container" th:if="${!#lists.isEmpty(data)}">
+                <table data-testid="geo-data-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Description</th>
+                        <th>Remarks</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d : ${data}" th:data-testid="'geo-data-row-' + ${d.gdId}">
+                        <td th:text="${d.gdId}">1</td>
+                        <td th:text="${d.userName}">user123</td>
+                        <td th:text="${d.latitude}">40.7128</td>
+                        <td th:text="${d.longitude}">-74.0060</td>
+                        <td th:text="${d.description}">Location description</td>
+                        <td th:text="${d.remarks}">Some remarks</td>
+                        <td>
+                            <span class="badge user" th:text="${d.status == 1 ? 'Active' : 'Inactive'}">Active</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(data)}">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>No Geographical Data</h3>
+                <p>No geographical records have been added yet.</p>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

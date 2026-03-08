@@ -1,7 +1,4 @@
 
-Action: file_editor create /app/style.css --file-text "/* ==========================================
-   Global Styles & Variables
-   ========================================== */
 :root {
     --primary-color: #3b82f6;
     --primary-dark: #2563eb;

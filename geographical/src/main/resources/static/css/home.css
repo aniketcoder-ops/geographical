@@ -1,6 +1,4 @@
-/* ==========================================
-   Global Styles & Variables - Purple & Black Theme
-   ========================================== */
+
 :root {
     --purple-primary: #8b5cf6;
     --purple-dark: #6d28d9;
@@ -27,9 +25,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ==========================================
-   Navigation Bar
-   ========================================== */
+
 .navbar {
     position: fixed;
     top: 0;
@@ -149,9 +145,7 @@ body {
     cursor: pointer;
 }
 
-/* ==========================================
-   Hero Section
-   ========================================== */
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -351,9 +345,7 @@ body {
     background: rgba(139, 92, 246, 0.2);
 }
 
-/* ==========================================
-   Sections
-   ========================================== */
+
 .section-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -388,9 +380,7 @@ body {
     color: var(--gray-light);
 }
 
-/* ==========================================
-   Features Section
-   ========================================== */
+
 .features {
     background: linear-gradient(180deg, var(--black-bg) 0%, var(--black-card) 100%);
 }
@@ -442,9 +432,7 @@ body {
     line-height: 1.7;
 }
 
-/* ==========================================
-   Map Section
-   ========================================== */
+
 .map-section {
     background: var(--black-bg);
 }
@@ -529,9 +517,7 @@ body {
     color: var(--gray-light);
 }
 
-/* ==========================================
-   Footer
-   ========================================== */
+
 .footer {
     background: var(--black-card);
     border-top: 1px solid rgba(139, 92, 246, 0.1);
@@ -564,9 +550,7 @@ body {
     font-size: 14px;
 }
 
-/* ==========================================
-   Responsive Design
-   ========================================== */
+
 @media (max-width: 1024px) {
     .hero-title {
         font-size: 56px;

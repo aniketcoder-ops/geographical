@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Add Data</title>
+</head>
+<body>
+
+<h1>Add Geographical Data</h1>
+
+<form th:action="@{/user/adddata}" method="post" th:object="${geographicalData}">
+
+  Latitude:
+  <input type="text" th:field="*{latitude}" required />
+  <br><br>
+
+  Longitude:
+  <input type="text" th:field="*{longitude}" required />
+  <br><br>
+
+  Description:
+  <input type="text" th:field="*{description}" />
+  <br><br>
+
+  Remarks:
+  <input type="text" th:field="*{remarks}" />
+  <br><br>
+
+  <button type="submit">Save</button>
+
+</form>
+
+<br>
+<a href="/user/dashboard">Back to Dashboard</a>
+
+</body>
+</html>

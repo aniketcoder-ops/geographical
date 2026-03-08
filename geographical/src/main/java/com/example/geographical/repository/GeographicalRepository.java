@@ -38,4 +38,5 @@ public interface GeographicalRepository extends JpaRepository<GeographicalData, 
 
 
     List<GeographicalData> findAllByOrderByGdIdDesc();
+    List<GeographicalData> findByUserName(String userName);
 }
