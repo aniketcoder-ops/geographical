@@ -2,6 +2,8 @@ package com.example.geographical.repository;
 
 import com.example.geographical.dto.projection.GeographicalDataProjectionDTO;
 import com.example.geographical.model.GeographicalData;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -36,7 +38,9 @@ public interface GeographicalRepository extends JpaRepository<GeographicalData, 
     """)
     int softDeleteById(@Param("id") Long id);
 
-
     List<GeographicalData> findAllByOrderByGdIdDesc();
     List<GeographicalData> findByUserName(String userName);
+
+
+    Page<GeographicalData> findByUserName(String userName, Pageable pageable);
 }

@@ -111,6 +111,7 @@
     <div class="data-section">
       <div class="section-header">
         <h2 data-testid="my-data-section-title">My Geographical Data</h2>
+        <p th:if="${totalElements > 0}">Showing <span th:text="${#lists.size(data)}"></span> of <span th:text="${totalElements}"></span> records</p>
       </div>
 
       <div class="table-container" th:if="${!#lists.isEmpty(data)}">
@@ -138,6 +139,25 @@
           </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination" th:if="${totalPages > 1}">
+          <a th:href="@{/user/dashboard(page=${currentPage - 1})}"
+             th:classappend="${currentPage == 0} ? 'disabled' : ''"
+             class="page-btn">
+            <i class="fas fa-chevron-left"></i> Previous
+          </a>
+
+          <span class="page-info">
+                Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span>
+            </span>
+
+          <a th:href="@{/user/dashboard(page=${currentPage + 1})}"
+             th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''"
+             class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
       </div>
 
       <div class="empty-state" th:if="${#lists.isEmpty(data)}">
@@ -155,6 +175,45 @@
   </main>
 
 </div>
+<style>
+  .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 1rem;
+  }
+
+  .page-btn {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+
+  .page-btn:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  .page-btn.disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      opacity: 0.5;
+  }
+
+  .page-info {
+      font-weight: 600;
+      color: #333;
+  }
+</style>
 
 </body>
 </html>

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Admin Dashboard - GeoExplorer</title>
 
     <!-- Dashboard CSS -->
@@ -94,6 +96,7 @@
         <div class="data-section">
             <div class="section-header">
                 <h2 data-testid="users-section-title">All Users</h2>
+                <p th:if="${totalUsers > 0}">Showing <span th:text="${#lists.size(users)}"></span> of <span th:text="${totalUsers}"></span> users</p>
             </div>
 
             <div class="table-container" th:if="${!#lists.isEmpty(users)}">
@@ -121,6 +124,25 @@
                     </tr>
                     </tbody>
                 </table>
+
+
+                <div class="pagination" th:if="${totalUserPages > 1}">
+                    <a th:href="@{/admin/dashboard(userPage=${currentUserPage - 1}, dataPage=${currentDataPage})}"
+                       th:classappend="${currentUserPage == 0} ? 'disabled' : ''"
+                       class="page-btn">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+
+                    <span class="page-info">
+                        Page <span th:text="${currentUserPage + 1}"></span> of <span th:text="${totalUserPages}"></span>
+                    </span>
+
+                    <a th:href="@{/admin/dashboard(userPage=${currentUserPage + 1}, dataPage=${currentDataPage})}"
+                       th:classappend="${currentUserPage >= totalUserPages - 1} ? 'disabled' : ''"
+                       class="page-btn">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
             </div>
 
             <div class="empty-state" th:if="${#lists.isEmpty(users)}">
@@ -130,10 +152,10 @@
             </div>
         </div>
 
-        <!-- Geographical Data Table -->
         <div class="data-section">
             <div class="section-header">
                 <h2 data-testid="geo-data-section-title">All Geographical Data</h2>
+                <p th:if="${totalData > 0}">Showing <span th:text="${#lists.size(data)}"></span> of <span th:text="${totalData}"></span> records</p>
             </div>
 
             <div class="table-container" th:if="${!#lists.isEmpty(data)}">
@@ -147,6 +169,7 @@
                         <th>Description</th>
                         <th>Remarks</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -160,9 +183,36 @@
                         <td>
                             <span class="badge user" th:text="${d.status == 1 ? 'Active' : 'Inactive'}">Active</span>
                         </td>
+                        <td>
+                            <button class="action-btn edit-btn" th:onclick="'openEditModal(' + ${d.gdId} + ')'" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" th:onclick="'confirmDelete(' + ${d.gdId} + ')'" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
+
+                <!-- Pagination Controls for Geographical Data -->
+                <div class="pagination" th:if="${totalDataPages > 1}">
+                    <a th:href="@{/admin/dashboard(userPage=${currentUserPage}, dataPage=${currentDataPage - 1})}"
+                       th:classappend="${currentDataPage == 0} ? 'disabled' : ''"
+                       class="page-btn">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+
+                    <span class="page-info">
+                        Page <span th:text="${currentDataPage + 1}"></span> of <span th:text="${totalDataPages}"></span>
+                    </span>
+
+                    <a th:href="@{/admin/dashboard(userPage=${currentUserPage}, dataPage=${currentDataPage + 1})}"
+                       th:classappend="${currentDataPage >= totalDataPages - 1} ? 'disabled' : ''"
+                       class="page-btn">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
             </div>
 
             <div class="empty-state" th:if="${#lists.isEmpty(data)}">
@@ -175,6 +225,590 @@
     </main>
 
 </div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit"></i> Edit Geographical Data</h2>
+            <button class="close-btn" onclick="closeEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form id="editForm" onsubmit="saveEdit(event)">
+            <input type="hidden" id="editId">
+
+            <div class="form-group">
+                <label for="editLatitude">
+                    <i class="fas fa-map-marker-alt"></i> Latitude
+                </label>
+                <input type="text" id="editLatitude" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editLongitude">
+                    <i class="fas fa-map-marker-alt"></i> Longitude
+                </label>
+                <input type="text" id="editLongitude" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editDescription">
+                    <i class="fas fa-align-left"></i> Description
+                </label>
+                <textarea id="editDescription" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editRemarks">
+                    <i class="fas fa-comment"></i> Remarks
+                </label>
+                <textarea id="editRemarks" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editStatus">
+                    <i class="fas fa-toggle-on"></i> Status
+                </label>
+                <select id="editStatus" required>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content modal-small">
+        <div class="modal-header modal-header-danger">
+            <h2><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h2>
+            <button class="close-btn" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <p>Are you sure you want to delete this geographical data?</p>
+            <p class="warning-text">This action cannot be undone!</p>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-delete" onclick="deleteData()">
+                <i class="fas fa-trash"></i> Yes, Delete
+            </button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+
+        <input type="hidden" id="deleteId">
+    </div>
+</div>
+
+<script>
+    let currentEditId = null;
+    let currentDeleteId = null;
+
+    // Get CSRF token from meta tag or cookie
+    function getCsrfToken() {
+        // Try to get from meta tag first
+        const metaToken = document.querySelector('meta[name="_csrf"]');
+        const metaHeader = document.querySelector('meta[name="_csrf_header"]');
+
+        if (metaToken && metaHeader) {
+            return {
+                token: metaToken.getAttribute('content'),
+                header: metaHeader.getAttribute('content')
+            };
+        }
+
+        // Fallback: try to get from cookie
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'XSRF-TOKEN') {
+                return {
+                    token: decodeURIComponent(value),
+                    header: 'X-XSRF-TOKEN'
+                };
+            }
+        }
+
+        return null;
+    }
+
+    // Open Edit Modal
+    async function openEditModal(id) {
+        try {
+            const response = await fetch(`/admin/api/geo-data/${id}`, {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch data: ' + response.status);
+            }
+
+            const data = await response.json();
+
+            document.getElementById('editId').value = data.gdId;
+            document.getElementById('editLatitude').value = data.latitude;
+            document.getElementById('editLongitude').value = data.longitude;
+            document.getElementById('editDescription').value = data.description || '';
+            document.getElementById('editRemarks').value = data.remarks || '';
+            document.getElementById('editStatus').value = data.status;
+
+            document.getElementById('editModal').style.display = 'flex';
+            currentEditId = id;
+        } catch (error) {
+            alert('❌ Error loading data: ' + error.message);
+            console.error('Error:', error);
+        }
+    }
+
+    // Close Edit Modal
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        currentEditId = null;
+    }
+
+    // Save Edit
+    async function saveEdit(event) {
+        event.preventDefault();
+
+        const data = {
+            gdId: parseInt(document.getElementById('editId').value),
+            latitude: parseFloat(document.getElementById('editLatitude').value),
+            longitude: parseFloat(document.getElementById('editLongitude').value),
+            description: document.getElementById('editDescription').value,
+            remarks: document.getElementById('editRemarks').value,
+            status: parseInt(document.getElementById('editStatus').value)
+        };
+
+        try {
+            const csrf = getCsrfToken();
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+
+            if (csrf) {
+                headers[csrf.header] = csrf.token;
+            }
+
+            const response = await fetch('/admin/api/geo-data/update', {
+                method: 'POST',
+                headers: headers,
+                credentials: 'same-origin',
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Update failed: ' + response.status);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('✅ Data updated successfully!');
+                closeEditModal();
+                location.reload();
+            } else {
+                alert('❌ Update failed: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ Error updating data: ' + error.message);
+            console.error('Error:', error);
+        }
+    }
+
+    // Confirm Delete
+    function confirmDelete(id) {
+        document.getElementById('deleteId').value = id;
+        document.getElementById('deleteModal').style.display = 'flex';
+        currentDeleteId = id;
+    }
+
+    // Close Delete Modal
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        currentDeleteId = null;
+    }
+
+    // Delete Data
+    async function deleteData() {
+        const id = document.getElementById('deleteId').value;
+
+        try {
+            const csrf = getCsrfToken();
+            const headers = {};
+
+            if (csrf) {
+                headers[csrf.header] = csrf.token;
+            }
+
+            const response = await fetch(`/admin/api/geo-data/delete/${id}`, {
+                method: 'DELETE',
+                headers: headers,
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error('Delete failed: ' + response.status);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('✅ Data deleted successfully!');
+                closeDeleteModal();
+                location.reload();
+            } else {
+                alert('❌ Delete failed: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ Error deleting data: ' + error.message);
+            console.error('Error:', error);
+        }
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+
+        if (event.target === editModal) {
+            closeEditModal();
+        }
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+    }
+</script>
+
+<style>
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem;
+        margin: 0 0.2rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .edit-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .delete-btn {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .delete-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Modal Styles - FIXED */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        padding: 2rem 0;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 85vh;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-small {
+        max-width: 450px;
+        max-height: auto;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .modal-header-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.15rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .close-btn:hover {
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 2rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .modal-body p {
+        margin: 0.5rem 0;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .warning-text {
+        color: #ef4444;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+
+    /* Form Styles - FIXED */
+    #editForm {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .form-group {
+        padding: 0 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group:first-of-type {
+        margin-top: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.65rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .modal-actions {
+        padding: 1rem 1.5rem 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        background: #f9fafb;
+        border-radius: 0 0 16px 16px;
+        flex-shrink: 0;
+    }
+
+    .btn-save,
+    .btn-delete,
+    .btn-cancel {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .modal-content {
+            width: 95%;
+            max-height: 90vh;
+        }
+
+        .form-group {
+            padding: 0 1rem;
+        }
+
+        .modal-actions {
+            flex-direction: column;
+        }
+
+        .btn-save,
+        .btn-delete,
+        .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+
+
+
+
+    </main>
+
+</div>
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding: 1rem;
+    }
+
+    .page-btn {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .page-btn:hover:not(.disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .page-btn.disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .page-info {
+        font-weight: 600;
+        color: #333;
+    }
+</style>
 
 </body>
 </html>

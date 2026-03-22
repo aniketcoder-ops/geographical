@@ -17,7 +17,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-        // Redirect to home page (which is public)
+
         response.sendRedirect("/home");
     }
 }

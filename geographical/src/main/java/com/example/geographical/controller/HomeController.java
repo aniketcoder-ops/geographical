@@ -29,7 +29,21 @@ public class HomeController {
     }
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(Authentication authentication) {
+        // If user is already authenticated, redirect to appropriate dashboard
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication.getPrincipal().equals("anonymousUser"))) {
+
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (isAdmin) {
+                return "redirect:/admin/dashboard";
+            } else {
+                return "redirect:/user/dashboard";
+            }
+        }
+
         return "login";
     }
 }

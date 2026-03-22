@@ -1,36 +1,331 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <title>Add Data</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Geographical Data - GeoExplorer</title>
+
+  <!-- ArcGIS -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.29/"></script>
+
+  <!-- Dashboard CSS -->
+  <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    #map {
+      height: 450px;
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn-submit {
+      flex: 1;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-back {
+      flex: 1;
+      padding: 1rem;
+      background: #f7fafc;
+      color: #2d3748;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+    }
+
+    .map-instruction {
+      padding: 1rem;
+      background: #eef2ff;
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      color: #4c51bf;
+      font-weight: 500;
+    }
+
+    .coordinates-display {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f0fdf4;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .coord-item {
+      flex: 1;
+      text-align: center;
+    }
+
+    .coord-item strong {
+      display: block;
+      color: #059669;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .coord-item span {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #064e3b;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Add Geographical Data</h1>
+<div class="dashboard-container">
 
-<form th:action="@{/user/adddata}" method="post" th:object="${geographicalData}">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <i class="fas fa-globe-americas"></i>
+      <h2>GeoExplorer</h2>
+    </div>
 
-  Latitude:
-  <input type="text" th:field="*{latitude}" required />
-  <br><br>
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/user/dashboard" data-testid="user-dashboard-link">
+          <i class="fas fa-chart-line"></i>
+          <span>My Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="/user/adddata" class="active" data-testid="add-data-link">
+          <i class="fas fa-plus-circle"></i>
+          <span>Add New Data</span>
+        </a>
+      </li>
+      <li>
+        <a href="/home" data-testid="home-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+      </li>
+    </ul>
 
-  Longitude:
-  <input type="text" th:field="*{longitude}" required />
-  <br><br>
+    <div class="sidebar-footer">
+      <a href="/logout" class="logout-btn" data-testid="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
 
-  Description:
-  <input type="text" th:field="*{description}" />
-  <br><br>
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
 
-  Remarks:
-  <input type="text" th:field="*{remarks}" />
-  <br><br>
+    <div class="dashboard-header">
+      <h1><i class="fas fa-map-marked-alt"></i> Add Geographical Data</h1>
+      <p>Click on the map to select a location or enter coordinates manually</p>
+    </div>
 
-  <button type="submit">Save</button>
+    <div class="data-section">
 
-</form>
+      <div class="map-instruction">
+        <i class="fas fa-info-circle"></i> Click anywhere on the map to automatically fill the coordinates below
+      </div>
 
-<br>
-<a href="/user/dashboard">Back to Dashboard</a>
+      <!-- Interactive Map -->
+      <div id="map"></div>
+
+      <!-- Display Selected Coordinates -->
+      <div class="coordinates-display" id="coordsDisplay" style="display: none;">
+        <div class="coord-item">
+          <strong>LATITUDE</strong>
+          <span id="displayLat">-</span>
+        </div>
+        <div class="coord-item">
+          <strong>LONGITUDE</strong>
+          <span id="displayLng">-</span>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form th:action="@{/user/adddata}" method="post" th:object="${geographicalData}">
+
+        <div class="form-group">
+          <label for="latitude">
+            <i class="fas fa-location-arrow"></i> Latitude *
+          </label>
+          <input type="text" id="latitude" th:field="*{latitude}" required readonly
+                 placeholder="Click on map to select latitude" />
+        </div>
+
+        <div class="form-group">
+          <label for="longitude">
+            <i class="fas fa-location-arrow"></i> Longitude *
+          </label>
+          <input type="text" id="longitude" th:field="*{longitude}" required readonly
+                 placeholder="Click on map to select longitude" />
+        </div>
+
+        <div class="form-group">
+          <label for="description">
+            <i class="fas fa-align-left"></i> Description
+          </label>
+          <textarea id="description" th:field="*{description}" rows="3"
+                    placeholder="Enter a description for this location"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="remarks">
+            <i class="fas fa-comment"></i> Remarks
+          </label>
+          <textarea id="remarks" th:field="*{remarks}" rows="3"
+                    placeholder="Additional remarks or notes"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" data-testid="save-data-btn">
+            <i class="fas fa-save"></i> Save Location
+          </button>
+          <a href="/user/dashboard" class="btn-back" data-testid="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+          </a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+  require([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/Graphic",
+    "esri/layers/GraphicsLayer"
+  ], function(Map, MapView, Graphic, GraphicsLayer) {
+
+    // Create graphics layer for marker
+    const graphicsLayer = new GraphicsLayer();
+
+    // Create map
+    const map = new Map({
+      basemap: "streets-navigation-vector",
+      layers: [graphicsLayer]
+    });
+
+    // Create view
+    const view = new MapView({
+      container: "map",
+      map: map,
+      center: [0, 20],
+      zoom: 2
+    });
+
+    // Click event to add marker and get coordinates
+    view.on("click", function(event) {
+      // Clear previous graphics
+      graphicsLayer.removeAll();
+
+      // Get coordinates
+      const lat = event.mapPoint.latitude.toFixed(6);
+      const lng = event.mapPoint.longitude.toFixed(6);
+
+      // Update form fields
+      document.getElementById("latitude").value = lat;
+      document.getElementById("longitude").value = lng;
+
+      // Update display
+      document.getElementById("displayLat").textContent = lat;
+      document.getElementById("displayLng").textContent = lng;
+      document.getElementById("coordsDisplay").style.display = "flex";
+
+      // Create marker
+      const point = {
+        type: "point",
+        longitude: event.mapPoint.longitude,
+        latitude: event.mapPoint.latitude
+      };
+
+      const markerSymbol = {
+        type: "simple-marker",
+        color: [226, 119, 40],
+        outline: {
+          color: [255, 255, 255],
+          width: 2
+        },
+        size: 12
+      };
+
+      const pointGraphic = new Graphic({
+        geometry: point,
+        symbol: markerSymbol
+      });
+
+      graphicsLayer.add(pointGraphic);
+    });
+
+  });
+</script>
 
 </body>
 </html>

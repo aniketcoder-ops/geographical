@@ -36,6 +36,7 @@ public class SecurityConfig {
                                 "/home",
                                 "/login",
                                 "/signup",
+                                "/logout",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -44,6 +45,7 @@ public class SecurityConfig {
 
                         // Admin only
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
 
                         // User only
                         .requestMatchers("/user/**").hasRole("USER")
@@ -60,18 +62,14 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/home?logout=true")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .clearAuthentication(true)
-                        .permitAll()
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/logout", "/admin/api/**")
                 )
 
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(accessDeniedHandler)
                 );
+
 
         return http.build();
     }
