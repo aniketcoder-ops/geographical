@@ -4,7 +4,7 @@ A Spring Boot backend application that provides REST APIs for managing geographi
 
 ## 🚀 Tech Stack
 
-- Java 17
+- Java 21
 - Spring Boot
 - Spring Data JPA
 - MySQL
